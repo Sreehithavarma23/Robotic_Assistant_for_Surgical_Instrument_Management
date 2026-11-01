@@ -1,7 +1,7 @@
 # Surgical Instrument Delivery Robot
 
 > A ROS 2 and Gazebo simulation of a mobile manipulator that prepares surgical
-> instrument trays, transports them between hospital rooms
+> instrument trays and transports them between hospital rooms.
 
 This project brings together a differential-drive robot, a six-joint arm,
 navigation, manipulation, perception experiments, and ROS 2 task orchestration.
@@ -20,8 +20,6 @@ It is a robotics software project and simulation demo—not a medical device.
 - **Perception experiments:** detect ArUco markers, publish marker poses, map
   overhead-camera observations to tray poses, and generate vision-based pickup
   goals.
-- **Vitals-monitoring demo:** publish synthetic vital-sign samples and report
-  threshold excursions after the operation room is marked ready.
 
 ## System overview
 
@@ -46,11 +44,6 @@ It is a robotics software project and simulation demo—not a medical device.
                        Gazebo link attacher
                                 |
                      Instrument tray delivery
-                                |
-                   /surgery/op_room_ready
-                                |
-                                v
-                   Synthetic vitals monitor
 ```
 
 The source also contains an ArUco perception and vision-goal pipeline. It is
@@ -67,7 +60,6 @@ behavior is coordinated.
 | `surgical_description` | Robot Xacro/URDF, Gazebo worlds and models, simulation launch files, controller configuration, and Nav2 parameters. |
 | `surgical_navigation` | Hospital map, room locations, surgery-to-tray/instrument database, and navigation-related nodes. |
 | `surgical_task_manager` | Mission orchestration, arm/base task nodes, ArUco detection and localization, and vision-goal helpers. |
-| `surgical_vitals` | Synthetic vitals publisher and threshold-based monitor. |
 | `instrument_moveit_config` | MoveIt configuration, planning parameters, RViz setup, and demo launch. |
 | `linkattacher_msgs` | ROS 2 service definitions used to attach and detach simulated models. |
 | `ros2_linkattacher` | Gazebo link-attacher plugin used by simulated tray pickup and drop-off. |
@@ -180,19 +172,6 @@ The orchestrator also accepts common completion variants such as `done`,
 `/tmp/surgical_task_manager_last_tray.txt` so a completion request can identify
 which tray to return.
 
-### Optional: vitals-monitoring demonstration
-
-```bash
-ros2 launch surgical_vitals vitals_monitor_launch.py
-```
-
-The launch starts a synthetic publisher on `/surgery/vitals` and a monitor that
-waits for `/surgery/op_room_ready`. The publisher generates example readings
-every two seconds and injects an out-of-range demo sample every fifth reading.
-The monitor publishes threshold alerts on `/surgery/vitals_alert`. These are
-simulated values for software demonstration only; they are not patient data or
-clinical measurements.
-
 ### Optional: visualization and MoveIt demo
 
 For a robot-description and RViz view without the Gazebo task flow:
@@ -242,16 +221,13 @@ simulation configuration, not general-purpose calibration.
 | `/arm_position_controller/follow_joint_trajectory` | `control_msgs/action/FollowJointTrajectory` | Six-joint arm trajectories. |
 | `/ATTACHLINK`, `/DETACHLINK` | Gazebo link-attacher services | Attach or release a tray in simulation. |
 | `/tray_{id}_pose` | `geometry_msgs/msg/PoseStamped` | Tray pose outputs from the ArUco localization helper. |
-| `/surgery/op_room_ready` | `std_msgs/msg/Bool` | Transient-local readiness signal used to gate vitals monitoring. |
-| `/surgery/vitals` | `std_msgs/msg/String` | JSON-encoded synthetic measurements. |
-| `/surgery/vitals_alert` | `std_msgs/msg/String` | JSON-encoded threshold alerts. |
 
 Inspect the runtime graph with standard ROS 2 tools, for example:
 
 ```bash
 ros2 node list
 ros2 topic list
-ros2 topic echo /surgery/vitals_alert
+ros2 topic echo /tray_1_pose
 ```
 
 ## Configuration
