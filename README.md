@@ -1,8 +1,7 @@
 # Surgical Instrument Delivery Robot
 
 > A ROS 2 and Gazebo simulation of a mobile manipulator that prepares surgical
-> instrument trays, transports them between hospital rooms, and demonstrates
-> patient-vitals monitoring.
+> instrument trays, transports them between hospital rooms
 
 This project brings together a differential-drive robot, a six-joint arm,
 navigation, manipulation, perception experiments, and ROS 2 task orchestration.
